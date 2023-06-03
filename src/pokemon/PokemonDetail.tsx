@@ -1,24 +1,14 @@
-import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useParams } from "react-router-dom"
-import { Pokemon, fetchPokemonById } from "./pokemon"
+import { fetchPokemonById } from "./pokemon"
 
 const PokemonDetail = () => {
   const { pokemonId = "" } = useParams<{ pokemonId: string }>()
-  const [pokemon, setPokemon] = useState<Pokemon>()
 
-  useEffect(() => {
-    let ignore = false
-
-    fetchPokemonById(pokemonId).then((newPokemon) => {
-      if (!ignore) {
-        setPokemon(newPokemon)
-      }
-    })
-
-    return () => {
-      ignore = true
-    }
-  }, [pokemonId])
+  const { data: pokemon } = useQuery({
+    queryKey: ["pokemon", pokemonId],
+    queryFn: () => fetchPokemonById(pokemonId),
+  })
 
   if (!pokemon) {
     return <div>Loading...</div>
