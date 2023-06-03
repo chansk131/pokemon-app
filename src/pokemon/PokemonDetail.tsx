@@ -1,6 +1,32 @@
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "react-router-dom"
-import { fetchPokemonById } from "./pokemon"
+import { fetchPokemonAbilityById, fetchPokemonById } from "./pokemon"
+
+const PokemonAbility = () => {
+  const { pokemonId = "" } = useParams<{ pokemonId: string }>()
+
+  const { data: pokemonAbilities } = useQuery({
+    queryKey: ["pokemon", "ability", pokemonId],
+    queryFn: () => fetchPokemonAbilityById(pokemonId),
+  })
+
+  if (!pokemonAbilities) {
+    return <div>Loading Pokemon Abilities...</div>
+  }
+
+  return (
+    <div>
+      <h2 className="text-lg font-bold">Abilities</h2>
+      {pokemonAbilities.map((ability) => (
+        <div key={ability.name} className="p-4">
+          <h3 className="font-bold">{ability.name}</h3>
+          <h3 className="font-bold">Effect:</h3>
+          <p>{ability.effect}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 const PokemonDetail = () => {
   const { pokemonId = "" } = useParams<{ pokemonId: string }>()
@@ -15,14 +41,17 @@ const PokemonDetail = () => {
   }
 
   return (
-    <div>
-      <p className="text-xl">Name: {pokemon?.name}</p>
+    <div className="w-[50ch]">
+      <h1 className="text-xl font-bold text-center">Name: {pokemon?.name}</h1>
       <img
+        className="m-auto"
         src={pokemon?.image}
         alt={`Image of ${pokemon?.name}`}
         width={200}
         height={200}
       />
+
+      <PokemonAbility />
     </div>
   )
 }
