@@ -7,7 +7,17 @@ const PokemonDetail = () => {
   const [pokemon, setPokemon] = useState<Pokemon>()
 
   useEffect(() => {
-    fetchPokemonById(pokemonId).then((newPokemon) => setPokemon(newPokemon))
+    let ignore = false
+
+    fetchPokemonById(pokemonId).then((newPokemon) => {
+      if (!ignore) {
+        setPokemon(newPokemon)
+      }
+    })
+
+    return () => {
+      ignore = true
+    }
   }, [pokemonId])
 
   if (!pokemon) {
