@@ -1,6 +1,23 @@
-import { useQuery } from "@tanstack/react-query"
-import { useParams } from "react-router-dom"
+import { QueryClient, useQuery } from "@tanstack/react-query"
+import { LoaderFunctionArgs, useParams } from "react-router-dom"
 import { fetchPokemonAbilityById, fetchPokemonById } from "./pokemon"
+
+export const loader =
+  (queryClient: QueryClient) =>
+  ({ params }: LoaderFunctionArgs) => {
+    const { pokemonId = "" } = params
+
+    queryClient.prefetchQuery({
+      queryKey: ["pokemon", pokemonId],
+      queryFn: () => fetchPokemonById(pokemonId),
+    })
+
+    queryClient.prefetchQuery({
+      queryKey: ["pokemon", "ability", pokemonId],
+      queryFn: () => fetchPokemonAbilityById(pokemonId),
+    })
+    return {}
+  }
 
 const PokemonAbility = () => {
   const { pokemonId = "" } = useParams<{ pokemonId: string }>()
