@@ -22,7 +22,39 @@ const FavouriteButton = ({ className }: Props) => {
   const favouriteMutation = useMutation({
     mutationFn: async (favourite: boolean) =>
       postPokemonFavouriteById(pokemonId, favourite),
-    onSuccess: () => {
+    // When mutate is called:
+    onMutate: async (newFavourite) => {
+      console.log("mutating", newFavourite)
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({
+        queryKey: ["pokemon", "favourite", pokemonId],
+      })
+
+      // Snapshot the previous value
+      const previousFavourite = queryClient.getQueryData([
+        "pokemon",
+        "favourite",
+        pokemonId,
+      ])
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(["pokemon", "favourite", pokemonId], {
+        favourite: newFavourite,
+      })
+
+      // Return a context with the previous and new todo
+      return { previousFavourite, newFavourite }
+    },
+    // If the mutation fails, use the context we returned above
+    onError: (_, __, context) => {
+      queryClient.setQueryData(
+        ["pokemon", "favourite", pokemonId],
+        context?.previousFavourite
+      )
+    },
+    // Always refetch after error or success:
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: ["pokemon", "favourite", pokemonId],
       })
