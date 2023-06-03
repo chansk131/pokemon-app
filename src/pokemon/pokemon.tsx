@@ -23,3 +23,26 @@ export const fetchPokemonAbilityById = async (
 
   return (await response.json()) as PokemonAbility[]
 }
+
+export const fetchPokemonFavouriteById = async (
+  id: string
+): Promise<{ favourite: boolean }> => {
+  const response = await fetch(`${baseUrl}/pokemon/${id}/favourite`)
+
+  return (await response.json()) as { favourite: boolean }
+}
+
+export const postPokemonFavouriteById = async (
+  id: string,
+  favourite: boolean
+) => {
+  return fetch(`${baseUrl}/pokemon/${id}/favourite`, {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: JSON.stringify({
+      favourite,
+    }),
+  })
+}

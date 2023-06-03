@@ -1,6 +1,11 @@
 import { QueryClient, useQuery } from "@tanstack/react-query"
 import { LoaderFunctionArgs, useParams } from "react-router-dom"
-import { fetchPokemonAbilityById, fetchPokemonById } from "./pokemon"
+import {
+  fetchPokemonAbilityById,
+  fetchPokemonById,
+  fetchPokemonFavouriteById,
+} from "./pokemon"
+import FavouriteButton from "./FavouriteButton"
 
 export const loader =
   (queryClient: QueryClient) =>
@@ -16,6 +21,12 @@ export const loader =
       queryKey: ["pokemon", "ability", pokemonId],
       queryFn: () => fetchPokemonAbilityById(pokemonId),
     })
+
+    queryClient.prefetchQuery({
+      queryKey: ["pokemon", "favourite", pokemonId],
+      queryFn: () => fetchPokemonFavouriteById(pokemonId),
+    })
+
     return {}
   }
 
@@ -58,7 +69,8 @@ const PokemonDetail = () => {
   }
 
   return (
-    <div className="w-[50ch]">
+    <div className="w-[50ch] relative">
+      <FavouriteButton className="absolute top-0 right-0" />
       <h1 className="text-xl font-bold text-center">Name: {pokemon?.name}</h1>
       <img
         className="m-auto"
